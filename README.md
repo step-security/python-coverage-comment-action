@@ -42,8 +42,6 @@ file in a collapsed block.
 
 This comment will also be output as a [job summary](https://docs.github.com/en/actions/using-workflows/workflow-commands-for-github-actions#adding-a-job-summary).
 
-See [an example](https://github.com/step-security/python-coverage-comment-action-v3-example/pull/2#issuecomment-1244431724).
-
 ### Default branch mode
 
 On repository's default branch, it will extract the coverage rate and create
@@ -58,8 +56,6 @@ These files include:
   evolution (does a PR make the coverage go up or down?)
 - A short file-by-file coverage report embedded directly into the branch's README. An excerpt from this is also output directly as a [job summary](https://docs.github.com/en/actions/using-workflows/workflow-commands-for-github-actions#adding-a-job-summary).
 - The full HTML coverage report and links to make this report browsable
-
-See [an example](https://github.com/step-security/python-coverage-comment-action-v3-example)
 
 ### Determining the mode
 
@@ -562,7 +558,6 @@ feature branches on the `push` events and not on the `pull_request` events, we
 partly support a mode where the action can comment on the PR when running on
 the `push` events instead. This is most likely only useful for setups not
 accepting external PRs and you will not have the best user experience.
-If that's something you need to do, please have a look at [this issue](https://github.com/step-security/python-coverage-comment-action/issues/234).
 
 ### Updating the coverage information on the `pull_request/closed` event
 
@@ -839,20 +834,6 @@ to use the svg badge directly, and not the `shields.io` URL.
 ## Github Enterprise (GHE) Support
 
 This action should be compatible with GitHub Enterprise. Just make sure to set the `GITHUB_BASE_URL` input to your GHE URL.
-
-## Upgrading from v2 to v3
-
-When upgrading, we change the location and format where the coverage
-data is kept. Pull request that have not been re-based may be displaying
-slightly wrong information.
-
-## New comment format starting with 3.19
-
-Starting with 3.19, the format for the Pull Request changed to a table
-with badges. We've been iterating a lot on the new format.
-It's perfectly ok if you preferred the old format. In that case, see
-#335 for instructions on how to emulate the old format using
-`COMMENT_TEMPLATE`.
 
 ## Zizmor
 

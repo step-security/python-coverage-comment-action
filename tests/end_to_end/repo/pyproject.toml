@@ -1,0 +1,13 @@
+[build-system]
+requires = ["setuptools"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "end-to-end-tests"
+version = "0.0.0"
+dependencies = [
+    "pytest",
+    "pytest-cov",
+]
+
+[tool.setuptools.packages.find]

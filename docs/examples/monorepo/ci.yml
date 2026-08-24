@@ -1,0 +1,56 @@
+# .github/workflows/ci.yml
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches:
+      - "main"
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions: {}
+
+jobs:
+  test:
+    name: Run tests & display coverage
+    runs-on: ubuntu-latest
+    permissions:
+      pull-requests: write # Publish the coverage comment, and edit it on later runs
+      contents: write # Push the coverage data to the data branch
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+
+      - name: Test project 1
+        run: make -C project_1 test
+
+      - name: Test project 2
+        run: make -C project_2 test
+
+      - name: Coverage comment (project 1)
+        id: coverage_comment_1
+        uses: step-security/python-coverage-comment-action@v4
+        with:
+          COVERAGE_PATH: project_1
+          SUBPROJECT_ID: project-1
+          GITHUB_TOKEN: ${{ github.token }}
+
+      - name: Coverage comment (project 2)
+        id: coverage_comment_2
+        uses: step-security/python-coverage-comment-action@v4
+        with:
+          COVERAGE_PATH: project_2/src
+          SUBPROJECT_ID: project-2
+          GITHUB_TOKEN: ${{ github.token }}
+
+      - name: Store Pull Request comment to be posted
+        uses: actions/upload-artifact@v7
+        if: steps.coverage_comment_1.outputs.COMMENT_FILE_WRITTEN == 'true' || steps.coverage_comment_2.outputs.COMMENT_FILE_WRITTEN == 'true'
+        with:
+          name: python-coverage-comment-action
+          # Note the star
+          path: python-coverage-comment-action*.txt

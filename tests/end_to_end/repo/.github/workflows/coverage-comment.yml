@@ -1,0 +1,31 @@
+name: Post coverage comment
+
+on: # zizmor: ignore[dangerous-triggers] We're using workflow_run to post a coverage comment on external PRs. This is safe because we don't checkout the external code. The only attack vector here would be via the coverage comment.
+  workflow_run:
+    workflows: ["CI"]
+    types:
+      - completed
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.workflow_run.head_branch }}
+  cancel-in-progress: true
+
+permissions: {}
+
+jobs:
+  test:
+    name: Publish coverage Comment
+    runs-on: ubuntu-latest
+    if: github.event.workflow_run.event == 'pull_request' && github.event.workflow_run.conclusion == 'success'
+    permissions:
+      actions: read # Download the comment artifact from the triggering CI run
+      pull-requests: write # Post the coverage comment on the PR, and edit it on later runs
+      contents: read
+    steps:
+      - name: Post comment
+        uses: ./
+        with:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_PR_RUN_ID: ${{ github.event.workflow_run.id }}
+          COVERAGE_PATH: __ACTION_COVERAGE_PATH__
+          SUBPROJECT_ID: __ACTION_SUBPROJECT_ID__

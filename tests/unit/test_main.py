@@ -1,0 +1,72 @@
+from __future__ import annotations
+
+import os
+from typing import Any
+from unittest.mock import patch
+
+import httpx
+import pytest
+
+from coverage_comment import main, settings, subprocess
+
+
+def test_main(get_logs):
+    # This test is a mock festival. The idea is that all the things that are hard
+    # to simulate without mocks have been pushed up the stack up to this function
+    # so this is THE place where we have no choice but to mock.
+    # We could also accept not to test this function but if we've come this
+    # far and have 98% coverage, we can as well have 100%.
+
+    os.environ.update(
+        {
+            "GITHUB_REPOSITORY": "foo/bar",
+            "GITHUB_PR_RUN_ID": "",
+            "GITHUB_REF": "ref",
+            "GITHUB_TOKEN": "token",
+            "GITHUB_BASE_REF": "",
+            "GITHUB_EVENT_NAME": "push",
+            "GITHUB_STEP_SUMMARY": "step_summary",
+            "GITHUB_EVENT_PATH": "foo/bar",
+        }
+    )
+    received_kwargs: dict[str, Any] = {}
+
+    def action(**kwargs: Any):
+        received_kwargs.update(kwargs)
+        return 42
+
+    with patch("coverage_comment.main.validate_subscription"):
+        with pytest.raises(SystemExit) as exc_data:
+            main.main(_action=action)
+
+    assert exc_data.value.code == 42
+    assert isinstance(received_kwargs["config"], settings.Config)
+    assert isinstance(received_kwargs["git"], subprocess.Git)
+    assert isinstance(received_kwargs["github_session"], httpx.Client)
+    assert isinstance(received_kwargs["http_session"], httpx.Client)
+
+    assert get_logs("INFO", "Starting action")
+    assert get_logs("INFO", "Ending action")
+
+
+def test_main__exception(get_logs):
+    # This test simulates an exception in the main part of the action. This should be catched and logged.
+
+    os.environ.update(
+        {
+            "GITHUB_REPOSITORY": "foo/bar",
+            "GITHUB_PR_RUN_ID": "",
+            "GITHUB_REF": "ref",
+            "GITHUB_TOKEN": "token",
+            "GITHUB_BASE_REF": "",
+            "GITHUB_EVENT_NAME": "push",
+            "GITHUB_STEP_SUMMARY": "step_summary",
+        }
+    )
+    with patch("coverage_comment.main.validate_subscription"):
+        with pytest.raises(SystemExit) as exc_data:
+            main.main()
+
+    assert exc_data.value.code == 1
+
+    assert get_logs("ERROR", "Critical error")

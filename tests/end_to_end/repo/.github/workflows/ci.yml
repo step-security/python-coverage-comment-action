@@ -1,0 +1,51 @@
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches:
+      - "main"
+
+concurrency:
+  group: CI
+
+permissions: {}
+
+jobs:
+  test:
+    name: Run tests & display/prepare coverage
+    runs-on: ubuntu-latest
+    permissions:
+      pull-requests: write # Post the coverage comment on the PR, and edit it on later runs
+      contents: write # Push the coverage data to the python-coverage-comment-action-data branch
+    steps:
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+        with:
+          persist-credentials: false
+
+      - uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405 # v6.2.0
+        with:
+          python-version: "3.14"
+
+      - run: pip install -e .
+        working-directory: __ACTION_COVERAGE_PATH__
+
+      - run: pytest
+        working-directory: __ACTION_COVERAGE_PATH__
+
+      - name: Coverage comment
+        id: coverage_comment
+        uses: __ACTION_REPOSITORY_OWNER__/python-coverage-comment-action@__ACTION_REF__ # zizmor: ignore[unpinned-uses]
+        with:
+          GITHUB_TOKEN: ${{ github.token }}
+          ANNOTATE_MISSING_LINES: true
+          ANNOTATION_TYPE: notice
+          COVERAGE_PATH: __ACTION_COVERAGE_PATH__
+          SUBPROJECT_ID: __ACTION_SUBPROJECT_ID__
+
+      - name: Store Pull Request comment to be posted
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        if: steps.coverage_comment.outputs.COMMENT_FILE_WRITTEN == 'true'
+        with:
+          name: python-coverage-comment-action
+          path: python-coverage-comment-action*.txt

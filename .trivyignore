@@ -1,0 +1,12 @@
+# msgpack and setuptools are vendored INSIDE pip's own bundled wheel at
+# ensurepip/_bundled/pip-*.whl and are not exposed to user code or the
+# coverage_comment application. They cannot be upgraded via pip install.
+
+# msgpack: out-of-bounds read on Unpacker reuse
+GHSA-6v7p-g79w-8964
+
+# setuptools: path traversal in PackageIndex
+CVE-2025-47273
+
+# setuptools: MANIFEST.in exclusion bypass
+CVE-2026-59890

@@ -1,0 +1,33 @@
+# .github/workflows/ci.yml
+name: CI
+
+on:
+  pull_request:
+  merge_group:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  # Never cancel a merge_group run: that would dequeue the pull request.
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+permissions: {}
+
+jobs:
+  test:
+    name: Run tests & display coverage
+    runs-on: ubuntu-latest
+    permissions:
+      pull-requests: write # Publish the coverage comment, and edit it on later runs
+      contents: write # Push the coverage data to the data branch
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+
+      - name: Install everything, run the tests, produce the .coverage file
+        run: make test # This is the part where you put your own test command
+
+      - name: Coverage comment
+        uses: step-security/python-coverage-comment-action@v4
+        with:
+          GITHUB_TOKEN: ${{ github.token }}

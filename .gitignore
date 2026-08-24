@@ -1,0 +1,7 @@
+.mypy_cache
+.DS_Store
+.coverage
+dev-env-vars
+.coverage*
+__pycache__
+.idea/

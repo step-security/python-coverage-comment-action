@@ -1,0 +1,94 @@
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches:
+      - "main"
+    tags:
+      - "*"
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions: {}
+
+jobs:
+  build:
+    strategy:
+      matrix:
+        include:
+          - python_version: "3.7"
+          - python_version: "3.8"
+          - python_version: "3.9"
+          - python_version: "3.10"
+
+    name: "Python ${{ matrix.python_version }}"
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read # Checkout the repository
+
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+
+      - name: Set up Python
+        id: setup-python
+        uses: actions/setup-python@v7
+        with:
+          python-version: ${{ matrix.python_version }}
+
+      - name: Install everything, run the tests, produce a .coverage.xxx file
+        run: make test # This is the part where you put your own test command
+        env:
+          COVERAGE_FILE: ".coverage.${{ matrix.python_version }}"
+          # The file name prefix must be ".coverage." for "coverage combine"
+          # enabled by "MERGE_COVERAGE_FILES: true" to work. A "subprocess"
+          # error with the message "No data to combine" will be triggered if
+          # this prefix is not used.
+
+      - name: Store coverage file
+        uses: actions/upload-artifact@v7
+        with:
+          name: coverage-${{ matrix.python_version }}
+          path: .coverage.${{ matrix.python_version }}
+          # By default hidden files/folders (i.e. starting with .) are ignored.
+          # You may prefer (for security reasons) not setting this and instead
+          # set COVERAGE_FILE above to not start with a `.`, but you cannot
+          # use "MERGE_COVERAGE_FILES: true" later on and need to manually
+          # combine the coverage file using "pipx run coverage combine"
+          include-hidden-files: true
+
+  coverage:
+    name: Coverage
+    runs-on: ubuntu-latest
+    needs: build
+    permissions:
+      pull-requests: write # Publish the coverage comment, and edit it on later runs
+      contents: write # Push the coverage data to the data branch
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+
+      - uses: actions/download-artifact@v8
+        id: download
+        with:
+          pattern: coverage-*
+          merge-multiple: true
+
+      - name: Coverage comment
+        id: coverage_comment
+        uses: step-security/python-coverage-comment-action@v4
+        with:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          MERGE_COVERAGE_FILES: true
+
+      - name: Store Pull Request comment to be posted
+        uses: actions/upload-artifact@v7
+        if: steps.coverage_comment.outputs.COMMENT_FILE_WRITTEN == 'true'
+        with:
+          name: python-coverage-comment-action
+          path: python-coverage-comment-action.txt

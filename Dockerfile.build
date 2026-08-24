@@ -1,13 +1,7 @@
-# If you change anything here, bump the version in:
-# - Dockerfile
-# - .github/workflows/ci.yml (the image tags of the push-to-registry job)
+FROM python:3.14-alpine@sha256:05b2b8b732ecd268fee8727a369f936f022d1321b59befd13c30ede22769dcdc
 
-FROM python:3.14-slim
-
-RUN set -eux; \
-    apt-get update; \
-    apt-get install -y git-lfs; \
-    rm -rf /var/lib/apt/lists/*
+RUN apk upgrade --no-cache && \
+    apk add --no-cache git-lfs
 
 # https://github.com/actions/runner-images/issues/6775
 RUN git config --system --add safe.directory '*'

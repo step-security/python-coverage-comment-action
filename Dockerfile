@@ -1,5 +1,21 @@
-# See Dockerfile.build for instructions on bumping this.
-FROM ghcr.io/py-cov-action/python-coverage-comment-action-base:v7@sha256:b9e711e0233b04cd64a35d10fe4fb2f825a6a4f1faa399097aefd667704b8d2e
+FROM python:3.14-alpine@sha256:05b2b8b732ecd268fee8727a369f936f022d1321b59befd13c30ede22769dcdc
+
+RUN apk upgrade --no-cache && \
+    apk add --no-cache git-lfs
+
+# https://github.com/actions/runner-images/issues/6775
+RUN git config --system --add safe.directory '*'
+
+WORKDIR /workdir
+
+COPY pyproject.toml LICENSE ./
+RUN md5sum pyproject.toml > pyproject.toml.md5
 
 COPY coverage_comment ./coverage_comment
-RUN md5sum -c pyproject.toml.md5 || pip install -e .
+ENV PIP_DISABLE_PIP_VERSION_CHECK=1
+ENV PIP_ROOT_USER_ACTION=ignore
+ENV PIP_NO_CACHE_DIR=off
+
+RUN pip install -e .
+
+CMD [ "coverage_comment" ]

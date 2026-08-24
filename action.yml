@@ -173,7 +173,7 @@ outputs:
     description: The number of changed lines in the diff. (Only available in PR mode)
 runs:
   using: docker
-  image: Dockerfile.build
+  image: Dockerfile
   env:
     ACTIVITY: ${{ inputs.ACTIVITY }}
     GITHUB_BASE_URL: ${{ inputs.GITHUB_BASE_URL }}

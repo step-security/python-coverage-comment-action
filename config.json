@@ -1,0 +1,12 @@
+{
+  "$comment": "Managed automatically when syncing with upstream. Do not edit by hand.",
+  "schema_version": 1,
+  "onboarding_type": "copied",
+  "action_type": "docker",
+  "upstream": {
+    "repository": "py-cov-action/python-coverage-comment-action",
+    "synced_tag": "v4.5",
+    "synced_commit": "e5fb2218463c3377f3504b0c5b5646ed53da7a2f",
+    "archived": false
+  }
+}

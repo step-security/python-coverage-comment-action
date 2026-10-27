@@ -174,7 +174,7 @@ outputs:
     description: The number of changed lines in the diff. (Only available in PR mode)
 runs:
   using: docker
-  image: docker://ghcr.io/step-security/python-coverage-comment-action:v4.3.0@sha256:8235394ddbf3412362d708d5c1f7c7dd67119f2953fa47661507d9214869a3b7 #v4.3.0
+  image: docker://ghcr.io/step-security/python-coverage-comment-action:v4.5.0@sha256:5a1ec24ac733c3679961e612a22ebbfd82379af2728b24109aa811b98ca15fa3 #v4.5.0
   env:
     ACTIVITY: ${{ inputs.ACTIVITY }}
     GITHUB_BASE_URL: ${{ inputs.GITHUB_BASE_URL }}

@@ -655,16 +655,16 @@ def test_action__pull_request__comment_disabled(
 ):
     session.register(
         "GET",
-        "/repos/py-cov-action/foobar",
+        "/repos/step-security/foo-bar",
         json={"default_branch": "main", "visibility": "public"},
     )
     session.register(
         "GET",
-        "/repos/py-cov-action/foobar/contents/data.json",
+        "/repos/step-security/foo-bar/contents/data.json",
         match_params={"ref": "python-coverage-comment-action-data"},
         status_code=404,
     )
-    session.register("GET", "/repos/py-cov-action/foobar/pulls/2", text=DIFF_STDOUT)
+    session.register("GET", "/repos/step-security/foo-bar/pulls/2", text=DIFF_STDOUT)
 
     fake_process.pass_command(["coverage", "combine"])
     fake_process.pass_command(["coverage", "json", "-o", "-"])
@@ -705,20 +705,20 @@ def test_action__pull_request__job_summary_disabled(
 ):
     session.register(
         "GET",
-        "/repos/py-cov-action/foobar",
+        "/repos/step-security/foo-bar",
         json={"default_branch": "main", "visibility": "public"},
     )
     session.register(
         "GET",
-        "/repos/py-cov-action/foobar/contents/data.json",
+        "/repos/step-security/foo-bar/contents/data.json",
         match_params={"ref": "python-coverage-comment-action-data"},
         status_code=404,
     )
-    session.register("GET", "/repos/py-cov-action/foobar/pulls/2", text=DIFF_STDOUT)
+    session.register("GET", "/repos/step-security/foo-bar/pulls/2", text=DIFF_STDOUT)
     session.register("GET", "/user", json={"login": "foo"})
-    session.register("GET", "/repos/py-cov-action/foobar/issues/2/comments", json=[])
+    session.register("GET", "/repos/step-security/foo-bar/issues/2/comments", json=[])
     session.register(
-        "POST", "/repos/py-cov-action/foobar/issues/2/comments", status_code=200
+        "POST", "/repos/step-security/foo-bar/issues/2/comments", status_code=200
     )
 
     fake_process.pass_command(["coverage", "combine"])

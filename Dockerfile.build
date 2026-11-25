@@ -1,16 +1,7 @@
-FROM python:3.14-alpine@sha256:05b2b8b732ecd268fee8727a369f936f022d1321b59befd13c30ede22769dcdc
+FROM python:3.15-alpine@sha256:0f9552bb28711333da16915ec146f5e6bb44a7fdac9ced15dc17c2e0206346dd
 
-<<<<<<< cb2bb776703f1b0e28cfa7214e7459e814afb0e0
 RUN apk upgrade --no-cache && \
     apk add --no-cache git-lfs
-=======
-FROM python:3.15-slim
-
-RUN set -eux; \
-    apt-get update; \
-    apt-get install -y git-lfs; \
-    rm -rf /var/lib/apt/lists/*
->>>>>>> cd4978899526a198be9bdeb9d55bf8613548f429
 
 # https://github.com/actions/runner-images/issues/6775
 RUN git config --system --add safe.directory '*'
